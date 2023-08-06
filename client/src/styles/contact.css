@@ -1,0 +1,50 @@
+/*  Contact css  */
+.contact-form{
+    width: 100%;
+    margin: 2rem;
+    font-size: 1.7rem;
+}
+form{
+    display: flex;
+    flex-direction: column;
+}
+form div{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 20px 585px;
+}
+div label{
+    padding: 10px;
+}
+form input, textarea{
+    font-size: 1.2rem;
+    height: 42px;
+    width: 370px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 2px solid salmon;
+}
+input:focus{
+    outline:none
+}
+textarea{
+    margin-right: 25px;
+}
+input[type="submit"]{
+    border: 0.5px solid grey;
+    box-sizing: border-box;
+    font-size: large;
+    font-weight: bold;
+    color: dodgerblue;
+    background-color: aliceblue;
+}
+input[type="submit"]:hover{
+    cursor: pointer;
+    background-color: dodgerblue;
+    color: aliceblue;
+    transition: .3s ease-in-out;
+}
+
+

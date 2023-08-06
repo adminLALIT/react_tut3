@@ -1,0 +1,109 @@
+
+/* Define variables */
+:root {
+    --white: #FFFFFF;
+    --grey: #AAAAAA;
+    --primary: #75420E;
+    --light: #F2E8E4;
+    --dark: #553B08;
+  }
+  
+  body {
+    background-color: var(--light);
+    margin: 2em;
+  }
+  
+  header {
+    margin: 5em;
+  }
+  header img {
+    object-fit: contain;
+    width: 17vw;
+    height: auto;
+  }
+  
+  main {
+    display: flex;
+    justify-content: center;
+  }
+  main img {
+    width: 80%;
+  }
+  
+  form, p, .social-sign-up {
+    width: 70%;
+  }
+  form h4 {
+    color: var(--dark);
+    padding-bottom: 1em;
+  }
+  form .form-control {
+    background-color: #e5e2e9;
+    opacity: 0.7;
+    margin-bottom: 1.5em;
+  }
+  form .submit-btn {
+    background: aliceblue;
+    border: 1px solid dodgerblue;
+    color: dodgerblue;
+    width: 100%;
+  }
+  form .submit-btn:hover {
+    background-color: dodgerblue;
+    color: aliceblue;
+    border: 1px solid aliceblue;
+    transition: 0.3s ease-in-out;
+  }
+  
+  p {
+    color: var(--grey);
+  }
+  
+  .hr-lines {
+    position: relative;
+    max-width: 500px;
+    margin: 50px 0;
+    text-align: center;
+  }
+  .hr-lines:before, .hr-lines:after {
+    content: " ";
+    height: 2px;
+    width: 150px;
+    background: var(--grey);
+    display: block;
+    position: absolute;
+    top: 50%;
+  }
+  .hr-lines:before {
+    left: 0;
+  }
+  .hr-lines:after {
+    right: 0;
+  }
+  
+  .social-sign-up button {
+    width: 100%;
+    border: 1px solid var(--dark);
+  }
+  .social-sign-up button:hover {
+    background: var(--primary);
+    color: var(--white);
+  }
+  .social-sign-up .fa-google {
+    background: conic-gradient(from -45deg, #ea4335 110deg, #4285f4 90deg 180deg, #34a853 180deg 270deg, #fbbc05 270deg) 73% 55%/150% 150% no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .sign-in {
+    margin: 1em 0;
+    text-align: center;
+  }
+
+  button .submit-btn{
+    background: aliceblue;
+    border: 1px solid dodgerblue;
+  }
+  
