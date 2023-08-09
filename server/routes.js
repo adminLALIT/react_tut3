@@ -29,45 +29,50 @@ router.get("/getdata", (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  let seqId;
-
-  try {
-    const cd = await Counter.findOneAndUpdate(
-      { id: "users" },
-      { $inc: { seq: 1 } },
-      { new: true }
-    );
-    if (cd == null) {
-      const newval = new Counter({ id: "users", seq: 1 });
-      await newval.save();
-      seqId = 1;
-    } else {
-      seqId = cd.seq;
+  let user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    let seqId;
+    try {
+      const cd = await Counter.findOneAndUpdate(
+        { id: "users" },
+        { $inc: { seq: 1 } },
+        { new: true }
+      );
+      if (cd == null) {
+        const newval = new Counter({ id: "users", seq: 1 });
+        await newval.save();
+        seqId = 1;
+      } else {
+        seqId = cd.seq;
+      }
+    } catch (err) {
+      console.log("Error updating Counter: ", err);
+      res.status(500).send("Error updating Counter");
     }
-  } catch (err) {
-    console.log("Error updating Counter: ", err);
-    res.status(500).send("Error updating Counter");
-  }
 
-  let password = req.body.password;
-  password = await bcrypt.hash(password, 10);
+    let password = req.body.password;
+    password = await bcrypt.hash(password, 10);
 
-  let user_info = new User({
-    id: seqId,
-    name: req.body.name,
-    email: req.body.email,
-    password: password,
-    phone: req.body.phone,
-  });
+    let user_info = new User({
+      id: seqId,
+      name: req.body.name,
+      email: req.body.email,
+      password: password,
+      phone: req.body.phone,
+    });
 
-  const result = await user_info.save();
-  if (result) {
-    console.log("Date inserted in the user collection successfully.");
+    const result = await user_info.save();
+    if (result) {
+      const data = {...result._doc};
+      delete data.password;
+      console.log("Date inserted in the user collection successfully.");
+      res.status(201).json({ success: true, msg: "New User Created", data: data });
+    } else {
+      console.log("Date insertion failed!");
+    }
   } else {
-    console.log("Date insertion failed!");
+    res.status(409).json({ success: false});
   }
-
-  res.send("Data sent to Server");
 });
 
 router.post("/uploadImage", upload, async (req, res) => {
@@ -115,12 +120,14 @@ const users = [
   {
     id: 1,
     username: "John",
+    email: "john@gmail.com",
     password: "John@123",
     isAdmin: true,
   },
   {
     id: 2,
     username: "Sara",
+    email: "sara@gmail.com",
     password: "Sara@123",
     isAdmin: false,
   },
@@ -163,20 +170,22 @@ const generateRefreshToken = (user) => {
   return jwt.sign({ id: user.id, isAdmin: user.isAdmin }, "myRefreshSecretKey");
 };
 
-router.post("/login", (req, res) => {
-  const { username, password } = req.body;
-  const user = users.find((u) => {
-    return u.username === username && u.password === password;
-  });
-  if (user) {
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email: email });
+  if (bcrypt.compare(password, user.password)) {
     // Generate jwt access token
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
     refreshTokens.push(refreshToken);
 
     res.json({
-      username: user.username,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
       isAdmin: user.isAdmin,
+      suspended: user.suspended,
       accessToken,
       refreshToken,
     });

@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/register.css";
+import { Link, useNavigate } from "react-router-dom";
+import useAuth from "../hooks/auth";
 
-const Register = (props) => {
+const Register = () => {
+  const navigate = useNavigate();
+  const { user, registerAndLogin } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,24 +35,13 @@ const Register = (props) => {
     } else {
       setPhoneError("");
 
-      axios({
-        url: "http://localhost:5000/api/create",
-        method: "post",
-        data: formData,
-      })
-        .then(() => {
-          console.log("Data sent to server")
-          setFormData({
-            name: "",
-            email: "",
-            password: "",
-            phone: "",
-          });
-        })
-        .catch(() => {
-          console.log("Something Went Wrong!");
-        });
-      
+      registerAndLogin(formData);
+
+      let el = document.getElementsByClassName("container");
+      el[0].innerHTML = "<h3>You are now successfully registered and logged in.</h3>";
+      setTimeout(() => {
+        navigate("/");
+      }, 4000);
     }
   };
 
@@ -132,7 +125,7 @@ const Register = (props) => {
           </form>
           <div className="sign-in">
             <p>
-              Already have an account? <a href="#">Log in</a>
+              Already have an account? <Link to={"/login"}>Log in</Link>
             </p>
           </div>
         </div>

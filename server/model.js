@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: Number,
   },
+  suspended: {
+    type: Boolean,
+    default: false,
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
+  },
   timecreated: {
     type: Date,
     default: Date.now,
@@ -32,10 +40,6 @@ const userSchema = new mongoose.Schema({
   timemodified: {
     type: Date,
     default: Date.now,
-  },
-  suspended: {
-    type: Boolean,
-    default: false,
   },
 });
 
