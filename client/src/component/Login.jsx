@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/register.css";
@@ -6,12 +6,14 @@ import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth";
 
-const Login = () => {
-  const { user, login } = useAuth();
+const Login = ({setUserInfo}) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
   const [success, setSuccess] = useState(false);
+  const ref = useRef("");
 
   const refreshToken = async () => {
     try {
@@ -48,13 +50,27 @@ const Login = () => {
   //   );
   // }, [user]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
-  };
+    console.log(ref)
+    try {
+      const loginSuccess = await login(email, password);
+      if (loginSuccess) {
+       
+       ref.current.innerHTML = "<h3>Login Successfull</h3>";
+       navigate("/");
 
+      } else {
+        setErrorMessage("Invalid Credentials!");
+      }
+    } catch (err) {
+      setErrorMessage("An error occurred during login attempt.");
+      console.warn(err);
+    }
+  };
+  // setUser(user);
   return (
-    <div className="container">
+    <div ref={ref} className="container">
       <header className="row text-center"></header>
       <main className="main row">
         <div className="left col">
@@ -95,6 +111,7 @@ const Login = () => {
                 value={password}
                 required
               />
+              {errorMessage && <p className="emailError">{errorMessage}</p>}
             </div>
             <button type="submit" className="btn submit-btn">
               Login

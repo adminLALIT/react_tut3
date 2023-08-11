@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { context } from "../component/Contextapi";
+
 
 const useAuth = () => {
+  const {setUser,user} = useContext(context);
   const navigate = useNavigate();
-  const [user, setUser] = useState({});
+  // const [user, setUser] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const login = async (email, password) => {
@@ -23,10 +26,13 @@ const useAuth = () => {
           suspended: res.data.suspended,
         });
         setIsLoggedIn(true);
-        navigate("/");
+        return true;
+      } else {
+        return false;
       }
     } catch (err) {
       console.warn(err);
+      return false;
     }
   };
 
@@ -44,9 +50,13 @@ const useAuth = () => {
           suspended: userData.suspended,
         });
         setIsLoggedIn(true);
+        return true;
+      } else {
+        return false;
       }
     } catch (err) {
       console.warn(err);
+      return false;
     }
   };
 

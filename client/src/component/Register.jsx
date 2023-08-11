@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/register.css";
@@ -16,6 +16,7 @@ const Register = () => {
   });
 
   const [phoneError, setPhoneError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +27,7 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const phoneNumber = formData.phone.replace(/\D/g, "");
     if (phoneNumber.length < 10 || isNaN(phoneNumber)) {
@@ -35,15 +36,25 @@ const Register = () => {
     } else {
       setPhoneError("");
 
-      registerAndLogin(formData);
-
-      let el = document.getElementsByClassName("container");
-      el[0].innerHTML = "<h3>You are now successfully registered and logged in.</h3>";
-      setTimeout(() => {
-        navigate("/");
-      }, 4000);
+      try {
+        const registrationSuccess = await registerAndLogin(formData);
+        if (registrationSuccess) {
+          let el = document.getElementsByClassName("container");
+          el[0].innerHTML =
+            "<h3>You are now successfully registered and logged in.</h3>";
+          setTimeout(() => {
+            navigate("/");
+          }, 4000);
+        } else {
+          setErrorMessage("Email Id already exists");
+        }
+      } catch (err) {
+        setErrorMessage("An error occurred during registration.");
+        console.warn(err);
+      }
     }
   };
+
 
   return (
     <div className="container">
@@ -87,6 +98,7 @@ const Register = () => {
                 value={formData.email}
                 required
               />
+              {errorMessage && (<p className="emailError">{ errorMessage }</p>)}
             </div>
             <div className="mb-3">
               <label htmlFor="password" className="form-label">

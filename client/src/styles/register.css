@@ -124,3 +124,8 @@ button .submit-btn {
   background: aliceblue;
   border: 1px solid dodgerblue;
 }
+
+.emailError {
+  color: red;
+  margin-top: -15px;
+}
