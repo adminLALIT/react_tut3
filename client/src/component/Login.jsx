@@ -6,7 +6,7 @@ import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth";
 
-const Login = ({setUserInfo}) => {
+const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
@@ -15,40 +15,6 @@ const Login = ({setUserInfo}) => {
   const [success, setSuccess] = useState(false);
   const ref = useRef("");
 
-  const refreshToken = async () => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/refresh", {
-        token: user.refreshToken,
-      });
-      setUser({
-        ...user,
-        accessToken: res.data.accessToken,
-        refreshToken: res.data.refreshToken,
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // useEffect(() => {
-  //   axios.interceptors.request.use(
-  //     async (config) => {
-  //       const currentDate = new Date();
-  //       if (user) {
-  //         const decodedToken = jwt_decode(user.accessToken);
-  //         if (decodedToken * 1000 < currentDate.getTime()) {
-  //           const data = await refreshToken();
-  //           console.log(data);
-  //           config.headers["authorization"] = "Bearer " + data.accessToken;
-  //         }
-  //       }
-  //       return config;
-  //     },
-  //     (err) => {
-  //       return Promise.reject(err);
-  //     }
-  //   );
-  // }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

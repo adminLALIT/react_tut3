@@ -9,23 +9,25 @@ import Login from "./component/Login";
 import Navbar from "./component/Navbar";
 import Profile from "./component/Profile";
 import useAuth from "./hooks/auth";
+import Logout from "./component/Logout";
 
 function App() {
   const [data, setData] = useState({});
   // const [user, setUser] = useState({});
   // const {user, setUser} = useAuth();
-  
+
   return (
     <>
       <BrowserRouter>
-      <Navbar/>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact/>} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login/>} />
+          <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/logout" element={<Logout />} />
         </Routes>
       </BrowserRouter>
     </>

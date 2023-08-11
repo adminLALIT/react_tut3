@@ -165,8 +165,8 @@ router.post("/login", async (req, res) => {
         phone: user.phone,
         isAdmin: user.isAdmin,
         suspended: user.suspended,
-        accessToken,
-        refreshToken,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       });
     } else {
       res.status(400).send("Username or password incorrect");
@@ -200,6 +200,7 @@ router.delete("/delete/users/:userId", verify, (req, res) => {
   }
 });
 
+//Logout
 router.post("/logout", verify, (req, res) => {
   const refreshToken = req.body.token;
   refreshTokens = refreshTokens.filter((token) => {

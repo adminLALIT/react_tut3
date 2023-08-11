@@ -7,7 +7,7 @@ import useAuth from "../hooks/auth";
 
 const Register = () => {
   const navigate = useNavigate();
-  const { user, registerAndLogin } = useAuth();
+  const { registerAndLogin } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",

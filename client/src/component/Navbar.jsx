@@ -3,7 +3,12 @@ import { NavLink } from "react-router-dom";
 import { context } from "./Contextapi";
 
 const Navbar = () => {
-  const {user} = useContext(context)
+  const { user } = useContext(context);
+  let initials = "";
+  if (user.id) {
+    const userName = user.name.split(" ");
+    initials = `${userName[0][0]}${userName[1][0]}`;
+  }
   return (
     <nav className="nav">
       <NavLink activeClassName="active" to={"/"} className={"site-title"}>
@@ -20,14 +25,18 @@ const Navbar = () => {
             Contact
           </NavLink>
         </li>
-        {user ? (
+        {user.id ? (
           <>
             <li>
-              <NavLink activeClassName="active" to={"/profile"}>
-                Profile
-              </NavLink>
+              
+                <div className=" dropdown">
+                  <button className="profile">{initials}</button>
+                  <div className="dropdown-options">
+                  <NavLink activeClassName="active" to={"/profile"}>Profile</NavLink>
+                  <NavLink activeClassName="active" to={"/logout"}>Logout</NavLink>
+                  </div>
+                </div>
             </li>
-            
           </>
         ) : (
           <>
