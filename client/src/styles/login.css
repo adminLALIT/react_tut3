@@ -1,0 +1,11 @@
+.eyeIcon {
+    position: absolute;
+    margin-top: -52px;
+    margin-left: 390px;
+  }
+  .offEyeIcon {
+    display: none;
+    position: absolute;
+    margin-top: -52px;
+    margin-left: 390px;
+  }

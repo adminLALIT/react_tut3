@@ -50,6 +50,11 @@ router.post("/create", async (req, res) => {
         if (result) {
           const data = { ...result._doc };
           delete data.password;
+          const accessToken = generateAccessToken(data);
+          const refreshToken = generateRefreshToken(data);
+          refreshTokens.push(refreshToken);
+          data.accessToken = accessToken;
+          data.refreshToken = refreshToken;
           console.log("Date inserted in the user collection successfully.");
           res
             .status(201)
@@ -68,20 +73,66 @@ router.post("/create", async (req, res) => {
   }
 });
 
+// Upload Profile Image
 router.post("/uploadImage", upload, async (req, res) => {
-  let file = req.file;
-  let image = new UserImage({
-    image: file.filename,
-  });
-  const result = await image.save();
-  if (result) {
-    console.log("Date inserted successfully");
-    console.log(result);
-    res.json(result);
-  } else {
-    console.log("Date insertion failed!");
+  try {
+    let file = req.body.file;
+    let user = req.body.user;
+    let userExist = await UserImage.findOne({ userId: user.id });
+    if (userExist) {
+      const result = await UserImage.updateOne(
+        { id: userExist.id },
+        {
+          $set: {
+            filename: file.filename,
+            filetype: file.type,
+            filepath: file.filepath,
+          },
+        }
+      );
+
+      if (result) {
+        console.log("Image Updated Successfully");
+        res
+          .status(200)
+          .json({ msg: "Image Updated Successfully", status: "success" });
+      } else {
+        console.log("Date insertion failed!");
+        res
+          .status(409)
+          .json({ msg: "Date insertion failed!", status: "fail" });
+      }
+    } else {
+      let seqId = await addCounter("userimages");
+      if (seqId) {
+        let image = new UserImage({
+          id: seqId,
+          userId: user.id,
+          filename: file.filename,
+          filetype: file.type,
+          filepath: file.filepath,
+        });
+        const result = await image.save();
+        if (result) {
+          console.log("Image Uploaded Successfully");
+          res
+            .status(200)
+            .json({ msg: "Image Uploaded Successfully", status: "success" });
+        } else {
+          console.log("Date insertion failed!");
+          res
+            .status(409)
+            .json({ msg: "Date insertion failed!", status: "fail" });
+        }
+      } else {
+        res.status(500).send("Error updating Counter");
+      }
+    }
+  } catch (err) {
+    res.status(409).json(err);
   }
 });
+
 router.post("/update", async (req, res) => {
   console.log(req.body);
   res.send("Data sent to Server");
@@ -157,6 +208,7 @@ router.post("/login", async (req, res) => {
       const accessToken = generateAccessToken(user);
       const refreshToken = generateRefreshToken(user);
       refreshTokens.push(refreshToken);
+      res.cookie("token", accessToken);
 
       res.json({
         id: user.id,
@@ -177,7 +229,8 @@ router.post("/login", async (req, res) => {
 });
 
 const verify = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.body.headers.authorization;
+  // console.log(req.body.headers.authorization);
   if (authHeader) {
     const token = authHeader.split(" ")[1];
     jwt.verify(token, "mySecretKey", (err, user) => {
@@ -202,10 +255,10 @@ router.delete("/delete/users/:userId", verify, (req, res) => {
 
 //Logout
 router.post("/logout", verify, (req, res) => {
-  const refreshToken = req.body.token;
-  refreshTokens = refreshTokens.filter((token) => {
-    token !== refreshToken;
-  });
+  // const refreshToken = req.body.token;
+  // refreshTokens = refreshTokens.filter((token) => {
+  //   token !== refreshToken;
+  // });
   res.status(200).send("You logged out successfully");
 });
 

@@ -10,6 +10,7 @@ import Navbar from "./component/Navbar";
 import Profile from "./component/Profile";
 import useAuth from "./hooks/auth";
 import Logout from "./component/Logout";
+import ProtectedRoute from "./component/ProtectedRoute";
 
 function App() {
   const [data, setData] = useState({});
@@ -24,10 +25,38 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/logout" element={<Logout />} />
+          <Route
+            path="/register"
+            element={
+              // <ProtectedRoute access="non-authenticated">
+                <Register />
+              // </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              // <ProtectedRoute access="non-authenticated">
+                <Login />
+              // </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              // <ProtectedRoute access="authenticated">
+                <Profile />
+              // </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/logout"
+            element={
+              // <ProtectedRoute access="authenticated">
+                <Logout />
+              // </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>

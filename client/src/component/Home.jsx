@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useContext } from 'react';
 import { context } from './Contextapi';
 
 const Home = () => {
-  const {user} = useContext(context)
+  const {user, isLoggedIn} = useContext(context)
+  
+  
   console.log(user);
   return (
     <div>Home</div>

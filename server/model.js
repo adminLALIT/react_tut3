@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-// const autoIncrement = require("mongoose-auto-increment");
 require("./config");
-
-// autoIncrement.initialize(connection);
 
 const userSchema = new mongoose.Schema({
   id: {
@@ -54,9 +51,28 @@ const counterSchema = new mongoose.Schema({
 });
 
 const userImageSchema = new mongoose.Schema({
-  image: {
-    type: String,
+  id: {
+    type: Number,
+    unique: true,
   },
+  userId: {
+    type: Number,
+    required: true
+  },
+  filename: {
+    type: String,
+    required: true
+  },
+  filetype:{
+    type: String
+  },
+  filepath: {
+    type: String
+  },
+  lastModifiedAt: {
+    type: Date,
+    default: Date.now,
+  }
 });
 
 const Counter = mongoose.model("counter", counterSchema);

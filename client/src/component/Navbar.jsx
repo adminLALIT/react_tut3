@@ -3,7 +3,8 @@ import { NavLink } from "react-router-dom";
 import { context } from "./Contextapi";
 
 const Navbar = () => {
-  const { user } = useContext(context);
+  const { user, isLoggedIn } = useContext(context);
+  console.log(user);
   let initials = "";
   if (user.id) {
     const userName = user.name.split(" ");
@@ -26,18 +27,19 @@ const Navbar = () => {
           </NavLink>
         </li>
         {user.id ? (
-          <>
-            <li>
-              
-                <div className=" dropdown">
-                  <button className="profile">{initials}</button>
-                  <div className="dropdown-options">
-                  <NavLink activeClassName="active" to={"/profile"}>Profile</NavLink>
-                  <NavLink activeClassName="active" to={"/logout"}>Logout</NavLink>
-                  </div>
-                </div>
-            </li>
-          </>
+          <li>
+            <div className=" dropdown">
+              {user.image ? (<img className="profile" src={user.image}/>) : (<button className="profile">{initials}</button>)}
+              <div className="dropdown-options">
+                <NavLink activeClassName="active" to={"/profile"}>
+                  Profile
+                </NavLink>
+                <NavLink activeClassName="active" to={"/logout"}>
+                  Logout
+                </NavLink>
+              </div>
+            </div>
+          </li>
         ) : (
           <>
             <li>

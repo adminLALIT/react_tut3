@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/register.css";
+import "../styles/login.css";
 import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/auth";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,18 +17,17 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(false);
   const [success, setSuccess] = useState(false);
   const ref = useRef("");
-
+  const eye = useRef();
+  const eyeOff = useRef();
+  const passwordRef = useRef();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(ref)
     try {
       const loginSuccess = await login(email, password);
       if (loginSuccess) {
-       
-       ref.current.innerHTML = "<h3>Login Successfull</h3>";
-       navigate("/");
-
+        ref.current.innerHTML = "<h3>Login Successfull</h3>";
+        navigate("/");
       } else {
         setErrorMessage("Invalid Credentials!");
       }
@@ -33,6 +35,17 @@ const Login = () => {
       setErrorMessage("An error occurred during login attempt.");
       console.warn(err);
     }
+  };
+
+  const handleOff = (e) => {
+    eye.current.style.display = "none";
+    eyeOff.current.style.display = "block";
+    passwordRef.current.type = "text";
+  };
+  const handleOn = (e) => {
+    eye.current.style.display = "block";
+    eyeOff.current.style.display = "none";
+    passwordRef.current.type = "password";
   };
   // setUser(user);
   return (
@@ -63,7 +76,7 @@ const Login = () => {
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="mb-3" style={{ position: "relative" }}>
               <label htmlFor="password" className="form-label">
                 Password
               </label>
@@ -72,10 +85,21 @@ const Login = () => {
                 className="form-control"
                 id="password"
                 name="password"
+                ref={passwordRef}
                 placeholder="Enter your password"
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
                 required
+              />
+              <VisibilityIcon
+                ref={eye}
+                className="eyeIcon"
+                onClick={handleOff}
+              />
+              <VisibilityOffIcon
+                ref={eyeOff}
+                className="offEyeIcon"
+                onClick={handleOn}
               />
               {errorMessage && <p className="emailError">{errorMessage}</p>}
             </div>

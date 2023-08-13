@@ -6,17 +6,22 @@ const Logout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate;
 
-  const handleLogout = async () => {
-    const isLoggedOut = await logout();
-    if (isLoggedOut) {
-      navigate("/register");
-    }
-  };
-
+  // const handleLogout = async () => {
+  //   const isLoggedOut = await logout();
+  //   return isLoggedOut;
+  //   // if (isLoggedOut) {
+  //   //   navigate("/register");
+  //   // }
+  // };
   useEffect(() => {
-    handleLogout();
+    logout();
   }, []);
 
+  // useEffect(() => {
+  //   handleLogout()
+  //     .then(() => navigate("/"))
+  //     .catch((err) => console.warn(err));
+  // }, []);
   return <div>Logging out...</div>;
 };
 
