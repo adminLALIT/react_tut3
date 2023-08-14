@@ -9,6 +9,7 @@ const { User } = require("./model");
 const { UserImage } = require("./model");
 const { Counter } = require("./model");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -98,9 +99,7 @@ router.post("/uploadImage", upload, async (req, res) => {
           .json({ msg: "Image Updated Successfully", status: "success" });
       } else {
         console.log("Date insertion failed!");
-        res
-          .status(409)
-          .json({ msg: "Date insertion failed!", status: "fail" });
+        res.status(409).json({ msg: "Date insertion failed!", status: "fail" });
       }
     } else {
       let seqId = await addCounter("userimages");
@@ -130,6 +129,23 @@ router.post("/uploadImage", upload, async (req, res) => {
     }
   } catch (err) {
     res.status(409).json(err);
+  }
+});
+
+// Get User Image
+router.get("/getimage", async (req, res) => {
+  try {
+    let userId = req.query.id;
+    const result = await UserImage.findOne({ userId: userId });
+    if (result) {
+      res.status(200).json({ status: "success", data: result });
+    } else {
+      console.log("Record Not Found!");
+      res.status(404).json({ status: "fail" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Server Error");
   }
 });
 
@@ -191,7 +207,7 @@ router.post("/refresh", (req, res) => {
 
 const generateAccessToken = (user) => {
   return jwt.sign({ id: user.id, isAdmin: user.isAdmin }, "mySecretKey", {
-    expiresIn: "15m",
+    expiresIn: "1d",
   });
 };
 const generateRefreshToken = (user) => {
@@ -260,6 +276,41 @@ router.post("/logout", verify, (req, res) => {
   //   token !== refreshToken;
   // });
   res.status(200).send("You logged out successfully");
+});
+
+// Email Configuration
+router.post("/email", (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: "lalit.yatharthriti@gmail.com",
+        pass: "cmbmtzedbxxqtbjc",
+      },
+    });
+
+    const mailOptions = {
+      from: email,
+      to: "lalit.yatharthriti@gmail.com",
+      subject: `New mail from ${name}`,
+      text: `Sender's mail : ${email} \n${message}`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.log("Mail Error", err);
+        res.status(500).json({ msg: "Error in sending mail!", status: true });
+      } else {
+        console.log("Email sent:", info.response);
+        res.status(200).json({ msg: "Email sent successfully", status: false });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ msg: "Error in sending mail!", status: true });
+  }
 });
 
 module.exports = router;

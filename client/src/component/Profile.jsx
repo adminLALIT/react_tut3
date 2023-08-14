@@ -2,91 +2,20 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import "../styles/profile.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { context } from "./Contextapi";
+import ProfileAbout from "./profileElements/ProfileAbout";
+import Timeline from "./profileElements/Timeline";
 
 const Profile = () => {
   const { user } = useContext(context);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
-  const [imageFile, setImageFile] = useState(null);
-  const [file, setFile] = useState({});
+  const [hide, setHide] = useState(true);
+  const navigate = useNavigate();
 
-  const [phoneError, setPhoneError] = useState("");
+  const [file, setFile] = useState({});
 
   const imageRef = useRef(null);
   const saveRef = useRef(null);
-
-  const [profile, setProfile] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleFileChange = (e) => {
-    // const file = e.target.files[0];
-    const file = imageRef.current.files[0];
-
-    // if (file && file.type.startsWith("image/")) {
-    setImageFile(file);
-    // } else {
-    //   setImageFile(null);
-    //   alert("Please select an image file");
-    // }
-  };
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const fileData = new FormData();
-    fileData.append("file", imageFile);
-
-    const phoneNumber = formData.phone.replace(/\D/g, "");
-    if (phoneNumber.length < 10 || isNaN(phoneNumber)) {
-      formData.phone = "";
-      setPhoneError("Please enter a valid 10-digit phone number.");
-    } else {
-      setPhoneError("");
-
-      axios
-        .post("http://localhost:5000/api/uploadImage", fileData)
-        .then((res) => {
-          console.log("Data sent to server");
-          setProfile(`http://127.0.0.1:5173/server/uploads/${res.data.image}`);
-          console.log(res.data.image);
-          setFormData({
-            name: "",
-            email: "",
-            phone: "",
-          });
-          setImageFile(null);
-        })
-        .catch(() => {
-          console.log("Something Went Wrong!");
-        });
-
-      axios
-        .post("http://localhost:5000/api/update", formData)
-        .then((res) => {
-          console.log("Data sent to server");
-
-          setFormData({
-            name: "",
-            email: "",
-            phone: "",
-          });
-          setImageFile(null);
-        })
-        .catch(() => {
-          console.log("Something Went Wrong!");
-        });
-    }
-  };
 
   const handleImage = (e) => {
     const fileInfo = e.target.files;
@@ -94,16 +23,14 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         imageRef.current.src = event.target.result;
+        setFile({
+          filename: fileInfo[0].name.trim(),
+          type: fileInfo[0].type,
+          lastModifiedAt: fileInfo[0].lastModified,
+          filepath: event.target.result,
+        });
       };
-      setFile({
-        filename: fileInfo[0].name.trim(),
-        type: fileInfo[0].type,
-        lastModifiedAt: fileInfo[0].lastModified,
-        filepath: imageRef.current.src,
-      });
       reader.readAsDataURL(fileInfo[0]);
-
-      window.localStorage.setItem("image", imageRef.current.src);
 
       saveRef.current.style.display = "block";
     }
@@ -123,12 +50,12 @@ const Profile = () => {
   return (
     <>
       <div className="container emp-profile">
-        <form>
+        <>
           <div className="row">
             <div className="col-md-4">
               <div className="profile-img">
                 {user.image ? (
-                  <img src={user.image} />
+                  <img src={user.image} ref={imageRef} />
                 ) : (
                   <img
                     src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsI4BVJivucLQGLWcrITEnDbNwa6nE5fR4Ig&usqp=CAU"
@@ -164,45 +91,42 @@ const Profile = () => {
                 <p className="proile-rating">
                   RANKINGS : <span>8/10</span>
                 </p>
-                <ul className="nav nav-tabs" id="myTab" role="tablist">
-                  <li className="nav-item">
-                    <a
-                      className="nav-link active"
-                      id="home-tab"
-                      data-toggle="tab"
-                      href="#home"
-                      role="tab"
-                      aria-controls="home"
-                      aria-selected="true"
-                    >
-                      About
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a
-                      className="nav-link"
-                      id="profile-tab"
-                      data-toggle="tab"
-                      href="#profile"
-                      role="tab"
-                      aria-controls="profile"
-                      aria-selected="false"
-                    >
-                      Timeline
-                    </a>
-                  </li>
-                </ul>
+                {hide && (
+                  <ul className="nav nav-tabs" id="myTab" role="tablist">
+                    <li className="nav-item">
+                      <Link to="/profile" className="nav-link" id="home-tab">
+                        About
+                      </Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link
+                        to="/profile/timeline"
+                        className="nav-link"
+                        id="profile-tab"
+                      >
+                        Timeline
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </div>
             </div>
             <div className="col-md-2">
-              <input
-                type="submit"
-                className="profile-edit-btn"
-                name="btnAddMore"
-                value="Edit Profile"
-              />
+              <Link
+                onClick={() => {
+                  setHide(!hide);
+                  hide
+                    ? navigate("/profile")
+                    : navigate("/profile/editprofile");
+                }}
+                to="/profile/editprofile"
+              >
+                {hide ? "Edit Profile" : "See Info"}
+              </Link>
             </div>
           </div>
+          <div className="nav"></div>
+
           <div className="row">
             <div className="col-md-4">
               <div className="profile-work">
@@ -225,113 +149,14 @@ const Profile = () => {
                 <br />
               </div>
             </div>
+
             <div className="col-md-8">
               <div className="tab-content profile-tab" id="myTabContent">
-                <div
-                  className="tab-pane fade show active"
-                  id="home"
-                  role="tabpanel"
-                  aria-labelledby="home-tab"
-                >
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>User Id</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>user{user.id}</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Name</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>{user.name}</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Email</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>{user.email}</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Phone</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>{user.phone}</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Profession</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>Web Developer and Designer</p>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="tab-pane fade"
-                  id="profile"
-                  role="tabpanel"
-                  aria-labelledby="profile-tab"
-                >
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Experience</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>Expert</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Hourly Rate</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>10$/hr</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Total Projects</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>230</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>English Level</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>Expert</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-6">
-                      <label>Availability</label>
-                    </div>
-                    <div className="col-md-6">
-                      <p>6 months</p>
-                    </div>
-                  </div>
-                  <div className="row">
-                    <div className="col-md-12">
-                      <label>Your Bio</label>
-                      <br />
-                      <p>Your detail description</p>
-                    </div>
-                  </div>
-                </div>
+                <Outlet />
               </div>
             </div>
           </div>
-        </form>
+        </>
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { context } from "./Contextapi";
+import axios from "axios";
 
 const Navbar = () => {
   const { user, isLoggedIn } = useContext(context);
@@ -9,6 +10,16 @@ const Navbar = () => {
   if (user.id) {
     const userName = user.name.split(" ");
     initials = `${userName[0][0]}${userName[1][0]}`;
+    axios
+      .get("http://localhost:5000/api/getimage", { params: { id: user.id } })
+      .then((res) => {
+        if (res.data.status === "success") {
+          window.localStorage.setItem("image", res.data.data.filepath);
+        } else {
+          window.localStorage.removeItem("image");
+        }
+      })
+      .catch((err) => console.warn(err));
   }
   return (
     <nav className="nav">
@@ -29,7 +40,11 @@ const Navbar = () => {
         {user.id ? (
           <li>
             <div className=" dropdown">
-              {user.image ? (<img className="profile" src={user.image}/>) : (<button className="profile">{initials}</button>)}
+              {user.image ? (
+                <img className="profile" src={user.image} />
+              ) : (
+                <button className="profile">{initials}</button>
+              )}
               <div className="dropdown-options">
                 <NavLink activeClassName="active" to={"/profile"}>
                   Profile

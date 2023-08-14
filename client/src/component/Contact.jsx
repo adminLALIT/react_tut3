@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-
-const Contact = (props) => {
-   
-    
+import axios from "axios";
+import "../styles/contact.css";
+const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,38 +9,66 @@ const Contact = (props) => {
   });
 
   const handleChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setFormData({
-        ...formData,
-        [name]: value
+      ...formData,
+      [name]: value,
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    props.daata(formData);  
+    axios
+      .post("http://localhost:5000/api/email", formData)
+      .then((res) => console.log("Email Sent"))
+      .catch((err) => console.warn(err));
   };
 
   return (
-    <div className="contact-form">
-        <h3>Contact Me</h3>
-      <form action="" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input type="text" id="name" name="name" onChange={handleChange} placeholder="Enter your name" value={formData.name} required />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input type="email" id="email" name="email" onChange={handleChange} placeholder="Your Email" value={formData.email}  required />
-        </div>
-        <div>
-          <label htmlFor="message">Message:</label>
-          <textarea id="message" name="message" onChange={handleChange} placeholder="What's on your mind?" value={formData.message}  required />
-        </div>
-        <div>
-          <input type="submit" value="Submit" />
-        </div>
-      </form>
+    <div className="contact-container">
+      <div className="left-col"></div>
+      <div className="right-col">
+        <h1>Contact me</h1>
+        <p>Need to get in touch with me? I'm all ears</p>
+
+        <form id="contact-form" method="post" onSubmit={handleSubmit}>
+          <label htmlFor="name">Full name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Your Full Name"
+            required
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <label htmlFor="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Your Email Address"
+            required
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <label htmlFor="message">Message</label>
+          <textarea
+            rows="6"
+            placeholder="Your Message"
+            id="message"
+            name="message"
+            required
+            value={formData.message}
+            onChange={handleChange}
+          ></textarea>
+          <button type="submit" id="submit" name="submit">
+            Send
+          </button>
+        </form>
+        <div id="error"></div>
+        <div id="success-msg"></div>
+      </div>
     </div>
   );
 };

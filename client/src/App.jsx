@@ -8,6 +8,9 @@ import Register from "./component/Register";
 import Login from "./component/Login";
 import Navbar from "./component/Navbar";
 import Profile from "./component/Profile";
+import ProfileAbout from "./component/profileElements/ProfileAbout";
+import Timeline from "./component/profileElements/Timeline";
+import EditProfile from "./component/profileElements/EditProfile";
 import useAuth from "./hooks/auth";
 import Logout from "./component/Logout";
 import ProtectedRoute from "./component/ProtectedRoute";
@@ -29,7 +32,7 @@ function App() {
             path="/register"
             element={
               // <ProtectedRoute access="non-authenticated">
-                <Register />
+              <Register />
               // </ProtectedRoute>
             }
           />
@@ -37,23 +40,21 @@ function App() {
             path="/login"
             element={
               // <ProtectedRoute access="non-authenticated">
-                <Login />
+              <Login />
               // </ProtectedRoute>
             }
           />
-          <Route
-            path="/profile"
-            element={
-              // <ProtectedRoute access="authenticated">
-                <Profile />
-              // </ProtectedRoute>
-            }
-          />
+
+          <Route path="/profile/" element={<Profile />}>
+            <Route index element={<ProfileAbout />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="editprofile" element={<EditProfile />} />
+          </Route>
           <Route
             path="/logout"
             element={
               // <ProtectedRoute access="authenticated">
-                <Logout />
+              <Logout />
               // </ProtectedRoute>
             }
           />
