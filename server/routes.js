@@ -5,7 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const router = express.Router();
 require("./config");
-const { User } = require("./model");
+const { User, UserInfo } = require("./model");
 const { UserImage } = require("./model");
 const { Counter } = require("./model");
 const bcrypt = require("bcryptjs");
@@ -132,6 +132,106 @@ router.post("/uploadImage", upload, async (req, res) => {
   }
 });
 
+router.post("/verify", async (req, res) => {
+  try {
+    const { userId, password } = req.body;
+    const user = await User.findOne({ id: userId });
+    if (user) {
+      const result = await bcrypt.compare(password, user.password);
+      if (result) {
+        console.log("Password Verified");
+        res.status(200).json({ status: "success", msg: "Password Verified" });
+      } else {
+        console.log("Password not correct");
+        res.status(401).json({ status: "fail", msg: "Password not correct" });
+      }
+    } else {
+      console.log("User not found!");
+      res.status(404).send("User not found!");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Update Info
+router.post("/updateinfo", async (req, res) => {
+  try {
+    let userId = req.body.userId;
+    const userExist = await UserInfo.findOne({ userId: userId });
+    if (userExist) {
+      const result = await UserInfo.updateOne(
+        { userId: userId },
+        {
+          $set: req.body,
+        }
+      );
+
+      if (result) {
+        console.log(
+          `Userinfo for userid ${userId} has been successfully updated`
+        );
+        res.status(200).json({
+          status: "success",
+          msg: `Userinfo for userid ${userId} has been successfully updated`,
+        });
+      } else {
+        console.log("Userinfo could not be updated!");
+        res
+          .status(409)
+          .json({ msg: "Userinfo could not be updated!", status: "fail" });
+      }
+    } else {
+      let seqId = await addCounter("userinfo");
+      if (seqId) {
+        const userInfo = await UserInfo({
+          id: seqId,
+          userId: userId,
+          profession: req.body.profession,
+          bio: req.body.bio,
+        });
+        const result = userInfo.save();
+        if (result) {
+          console.log(
+            `Userinfo for userid ${userId} has been successfully updated`
+          );
+          res.status(200).json({
+            msg: `Userinfo for userid ${userId} has been successfully updated`,
+            status: "success",
+          });
+        } else {
+          console.log("Date insertion failed!");
+          res
+            .status(409)
+            .json({ msg: "Date insertion failed!", status: "fail" });
+        }
+      } else {
+        res.status(500).send("Error updating Counter");
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Server Error!");
+  }
+});
+
+// Get User Info
+router.get("/getinfo/:id", async (req, res) => {
+  try{
+    const userId = req.params.id;
+    const result = await UserInfo.findOne({userId});
+    if(result){
+      res.status(200).json({ status: "success", userinfo: result });
+    } else{
+      console.log("Record Not Found!");
+      res.status(404).json({ status: "fail" });
+    }
+  } catch(err){
+    console.log(err);
+    res.status(500).send("Server Error!");
+  }
+})
+
 // Get User Image
 router.get("/getimage", async (req, res) => {
   try {
@@ -145,13 +245,59 @@ router.get("/getimage", async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json("Server Error");
+    res.status(500).json("Server Error!");
   }
 });
 
+// Check if email already exists
+router.post("/checkemail", async (req, res) => {
+  try {
+    const { userId, email } = req.body;
+    const result = await User.findOne(
+      { id: { $ne: userId }, email },
+      { _id: 0 }
+    );
+    if (result) {
+      console.log("Email Id already exists!");
+      res
+        .status(200)
+        .json({ status: "success", msg: "Email Id already exists!" });
+    } else {
+      res.status(200).json({ status: "fail" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Server Error!");
+  }
+});
+
+// Update User Profile Data
 router.post("/update", async (req, res) => {
-  console.log(req.body);
-  res.send("Data sent to Server");
+  try {
+    const { userId, name, phone, email, password } = req.body;
+    const hashPass = bcrypt.hash(password, 10);
+    const result = await User.updateOne(
+      { id: userId },
+      { $set: { name, email, phone, hashPass } }
+    );
+    if (result) {
+      console.log("User Updated Successfully");
+      res
+        .status(201)
+        .json({ status: "success", msg: "User Updated Successfully" });
+    } else {
+      console.log("User could not be update. Please Send the request again!");
+      res
+        .status(205)
+        .json({
+          status: "fail",
+          msg: "User could not be update. Please Send the request again!",
+        });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Server Error!");
+  }
 });
 
 // Creating Auto Incrementing with Counters

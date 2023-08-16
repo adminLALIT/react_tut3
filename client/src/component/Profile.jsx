@@ -6,10 +6,17 @@ import { Outlet, Link, useNavigate } from "react-router-dom";
 import { context } from "./Contextapi";
 import ProfileAbout from "./profileElements/ProfileAbout";
 import Timeline from "./profileElements/Timeline";
+import EditProfile from "./profileElements/EditProfile";
 
 const Profile = () => {
   const { user } = useContext(context);
   const [hide, setHide] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [panel, setPanel] = useState(true);
+
+  const [bio, setBio] = useState("");
+  const [profession, setProfession] = useState("");
+
   const navigate = useNavigate();
 
   const [file, setFile] = useState({});
@@ -47,10 +54,22 @@ const Profile = () => {
       });
   };
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/getinfo/" + user.id)
+      .then((res) => {
+        if (res.data.status === "success") {
+          setBio(res.data.userinfo.bio);
+          setProfession(res.data.userinfo.profession);
+        }
+      })
+      .catch((err) => console.warn(err));
+  }, []);
+
   return (
     <>
       <div className="container emp-profile">
-        <>
+        <div className="subContainer">
           <div className="row">
             <div className="col-md-4">
               <div className="profile-img">
@@ -87,14 +106,20 @@ const Profile = () => {
               </p>
               <div className="profile-head">
                 <h5>{user.name}</h5>
-                <h6>Web Developer and Designer</h6>
+                <h6>{profession}</h6>
+                <p>{bio}</p>
                 <p className="proile-rating">
-                  RANKINGS : <span>8/10</span>
+                  RANKINGS : <span>9.8/10</span>
                 </p>
                 {hide && (
                   <ul className="nav nav-tabs" id="myTab" role="tablist">
                     <li className="nav-item">
-                      <Link to="/profile" className="nav-link" id="home-tab">
+                      <Link
+                        to="/profile"
+                        className="nav-link"
+                        id="home-tab"
+                        onClick={() => setPanel(true)}
+                      >
                         About
                       </Link>
                     </li>
@@ -103,6 +128,7 @@ const Profile = () => {
                         to="/profile/timeline"
                         className="nav-link"
                         id="profile-tab"
+                        onClick={() => setPanel(false)}
                       >
                         Timeline
                       </Link>
@@ -115,9 +141,7 @@ const Profile = () => {
               <Link
                 onClick={() => {
                   setHide(!hide);
-                  hide
-                    ? navigate("/profile")
-                    : navigate("/profile/editprofile");
+                  setEditMode(!editMode);
                 }}
                 to="/profile/editprofile"
               >
@@ -151,12 +175,22 @@ const Profile = () => {
             </div>
 
             <div className="col-md-8">
-              <div className="tab-content profile-tab" id="myTabContent">
-                <Outlet />
+              <div
+                className="tab-content profile-tab"
+                id="myTabContent"
+                style={{ marginTop: "-25%" }}
+              >
+                {editMode ? (
+                  <EditProfile />
+                ) : panel ? (
+                  <ProfileAbout />
+                ) : (
+                  <Timeline />
+                )}
               </div>
             </div>
           </div>
-        </>
+        </div>
       </div>
     </>
   );

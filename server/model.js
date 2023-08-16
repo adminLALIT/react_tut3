@@ -40,6 +40,28 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+const userInfoSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    unique: true
+  },
+  userId: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+  profession: {
+    type: String,
+  },
+  bio: {
+    type: String
+  },
+  timemodified: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 // Counter Collection
 const counterSchema = new mongoose.Schema({
   id: {
@@ -78,5 +100,6 @@ const userImageSchema = new mongoose.Schema({
 const Counter = mongoose.model("counter", counterSchema);
 const User = mongoose.model("User", userSchema);
 const UserImage = mongoose.model("UserImage", userImageSchema);
+const UserInfo = mongoose.model("UserInfo", userInfoSchema);
 
-module.exports = { User, UserImage, Counter };
+module.exports = { User, UserImage, UserInfo, Counter };
